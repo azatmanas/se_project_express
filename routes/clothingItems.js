@@ -12,7 +12,7 @@ const {
 // Create
 router.post("/", createItem);
 
-///Read
+//Read
 
 router.get("/", getItems);
 

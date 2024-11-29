@@ -1,24 +1,23 @@
-const User = require("./../models/user");
+const User = require("../models/user");
+const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((res) => res.status(500).send({ message: "Error" }));
+    .catch(() => res.status(DEFAULT).send({ message: "Error" }));
 };
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
-  console.log(name);
-
   User.create({ name, avatar })
     .then((user) => {
-      return res.send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: "Error from createUser" });
+        res.status(BAD_REQUEST).send({ message: "Error from createUser" });
       } else {
-        res.status(500).send({ message: "Error from createUser" });
+        res.status(DEFAULT).send({ message: "Error from createUser" });
       }
     });
 };
@@ -29,14 +28,22 @@ const getUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "DocumentFoundError") {
-        res.status(404);
+        res.status(BAD_REQUEST).send({ message: "Error from getUser" });
       } else {
-        if (err.name === "CastError") {
-          res.status(401);
-        }
-        return res.status(500).send({ message: "Error" });
+        res.status(NOT_FOUND).send({ message: "Error from getUser" });
       }
     });
+
+  // .catch((err) => {
+  //   if (err.name === "DocumentFoundError") {
+  //     res.status(NOT_FOUND);
+  //   } else {
+  //     if (err.name === "CastError") {
+  //       res.status(401);
+  //     }
+  //     return res.status(DEFAULT).send({ message: "Error" });
+  //   }
+  // });
 };
 
 module.exports = { getUsers, createUser, getUser };

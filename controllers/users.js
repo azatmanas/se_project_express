@@ -14,7 +14,13 @@ const createUser = (req, res) => {
     .then((user) => {
       return res.send(user);
     })
-    .catch(() => res.status(500).send({ message: "Error" }));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: "Error from createUser" });
+      } else {
+        res.status(500).send({ message: "Error from createUser" });
+      }
+    });
 };
 
 const getUser = (req, res) => {

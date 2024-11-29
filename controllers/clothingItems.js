@@ -7,7 +7,7 @@ const createItem = (req, res) => {
     .then((item) => res.status(201).send({ item }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Error from createItem" });
+        res.status(BAD_REQUEST).send({ message: "Error from create Val" });
       } else {
         res.status(DEFAULT).send({ message: "Error from createItem" });
       }
@@ -39,18 +39,17 @@ const updateItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then(() => res.status(200).send({ message: "Item Deleted" }))
     .catch((err) => {
-      if (err.name === "DocumentFoundError") {
-        return res.status(BAD_REQUEST);
+      if (err.name === "DocumentNotFoundError") {
+        res.status(NOT_FOUND);
       }
       if (err.name === "CastError") {
         res.status(BAD_REQUEST);
       }
-      return res.status(BAD_REQUEST).send({ message: "Error from deleteItem" });
+      res.status(DEFAULT).send({ message: "Error from deleteItem" });
     });
 };
 

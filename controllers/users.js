@@ -27,17 +27,18 @@ const createUser = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
+    .orFail()
     .then((user) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === "DocumentFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "document didnt found" });
       }
       if (err.name === "CastError") {
-        return res.status(DEFAULT);
+        return res.status(BAD_REQUEST);
       }
-      return res.status(BAD_REQUEST).send({ message: "Error from getUser" });
+      return res.status(DEFAULT).send({ message: "Error from getUser" });
     });
 };
 

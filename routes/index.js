@@ -4,7 +4,7 @@ const clothingItemRouter = require("./clothingItems");
 const { NOT_FOUND } = require("../utils/errors");
 
 mainRouter.use("/users", usersRouter);
-mainRouter.use("/item", clothingItemRouter);
+mainRouter.use("/items", clothingItemRouter);
 
 mainRouter.use((req, res) => {
   res.status(NOT_FOUND).send({ message: "Requested resource not found" });

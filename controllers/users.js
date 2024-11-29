@@ -32,13 +32,12 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentFoundError") {
-        res.status(NOT_FOUND).send({ message: "document didnt found" });
-      } else {
-        if (err.name === "CastError") {
-          res.status(DEFAULT);
-        }
-        return res.status(BAD_REQUEST).send({ message: "Error from getUser" });
+        return res.status(NOT_FOUND).send({ message: "document didnt found" });
       }
+      if (err.name === "CastError") {
+        return res.status(DEFAULT);
+      }
+      return res.status(BAD_REQUEST).send({ message: "Error from getUser" });
     });
 };
 

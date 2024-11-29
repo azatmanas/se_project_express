@@ -17,8 +17,7 @@ const createItem = (req, res) => {
 const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
-    .catch((err) => {
-      console.error(err);
+    .catch(() => {
       res.status(DEFAULT).send({ message: "Error from getItems" });
     });
 };
@@ -46,15 +45,12 @@ const deleteItem = (req, res) => {
     .then(() => res.status(200).send({ message: "Item Deleted" }))
     .catch((err) => {
       if (err.name === "DocumentFoundError") {
-        res.status(BAD_REQUEST);
-      } else {
-        if (err.name === "CastError") {
-          res.status(BAD_REQUEST);
-        }
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Error from deleteItem" });
+        return res.status(BAD_REQUEST);
       }
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST);
+      }
+      return res.status(BAD_REQUEST).send({ message: "Error from deleteItem" });
     });
 };
 
@@ -66,8 +62,7 @@ const likeItem = (req, res) =>
   )
     .orFail(() => res.status(BAD_REQUEST))
     .then((item) => res.status(BAD_REQUEST).send(item))
-    .catch((err) => {
-      console.error(err);
+    .catch(() => {
       res.status(NOT_FOUND).send({ message: "Error from LikeItem" });
     });
 
@@ -79,9 +74,7 @@ const dislikeItem = (req, res) =>
   )
     .orFail(() => res.status(NOT_FOUND))
     .then((item) => res.status(200).send(item))
-    .catch((err) => {
-      console.error(err);
-
+    .catch(() => {
       res
         .status(BAD_REQUEST)
         .send({ message: "Error message from disLikeItem" });

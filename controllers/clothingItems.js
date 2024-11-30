@@ -28,20 +28,23 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndDelete(itemId)
-    .then((item) => {
-      if (!item) {
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.name = "DocumentNotFoundError";
+      throw error;
+    })
+    .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      return res.status(200).send({ data: item });
-    })
-    .catch((err) => {
+
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
       }
       return res.status(DEFAULT).send({ message: "Server error occurred" });
     });
 };
-
 const likeItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;

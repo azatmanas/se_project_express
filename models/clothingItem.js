@@ -14,7 +14,7 @@ const clothingItem = moongose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (v) => validator.imageUrl(v),
+      validator: (v) => validator.isURL(v),
       message: "Link is not Valid",
     },
   },

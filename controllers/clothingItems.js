@@ -25,21 +25,6 @@ const getItems = (req, res) => {
     });
 };
 
-// const updateItem = (req, res) => {
-//   const { itemId } = req.params;
-//   const { imageUrl } = req.body;
-//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-//     .orFail()
-//     .then((item) => res.status(200).send({ data: item }))
-//     .catch((err) => {
-//       if (err.name === "DocumentFoundError") {
-//         res.status(BAD_REQUEST).send({ message: "Error from updateItem" });
-//       } else {
-//         res.status(NOT_FOUND).send({ message: "Error from updateItem" });
-//       }
-//     });
-// };
-
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndDelete(itemId)
@@ -106,7 +91,6 @@ const dislikeItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  // updateItem,
   deleteItem,
   likeItem,
   dislikeItem,

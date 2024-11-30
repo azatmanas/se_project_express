@@ -5,6 +5,8 @@ const clothingItem = moongose.Schema({
   name: {
     type: String,
     required: true,
+    minLength: 2,
+    maxLength: 30,
   },
   weather: {
     type: String,

@@ -1,7 +1,7 @@
-const moongose = require("mongoose");
+const mongoose = require("mongoose");
 const validator = require("validator");
 
-const clothingItem = moongose.Schema({
+const clothingItem = mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -35,4 +35,4 @@ const clothingItem = moongose.Schema({
   },
 });
 
-module.exports = moongose.model("clothingItems", clothingItem);
+module.exports = mongoose.model("clothingItems", clothingItem);

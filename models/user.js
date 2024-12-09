@@ -24,8 +24,8 @@ const userSchema = new moongose.Schema({
     },
   },
   password: {
-    required: true,
     type: String,
+    required: true,
     select: false,
   },
 });

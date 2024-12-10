@@ -17,6 +17,7 @@ const updateUsers = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(NOT_FOUND).json({ message: "Invalid data provided" });
       }
+
       return res
         .status(DEFAULT)
         .json({ message: "Error message from userGetUser" });
@@ -25,11 +26,19 @@ const updateUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
+
+  if (!email || !name || !password) {
+    return res.status(BAD_REQUEST).send({ message: "Missing required fields" });
+  }
+
   User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (user) {
-        throw new Error({ message: "Email already in use" });
+        if (err.code === 11000) {
+          return res.status(409).send({ message: "Duplicate email error" });
+        }
+        // throw new Error({ message: "Email already in use" });
       }
       return bcrypt.hash(password, 10);
     })
@@ -50,10 +59,11 @@ const createUser = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Error from createUser" });
       }
-      if (err.code === 11000) {
-        return res.status(400).send({ message: "Duplicate email error" });
-      }
-      return res.status(400).send({ message: "Error from createUser" });
+      // if (err.code === 11000 ) {
+      //   return res.status(400).send({ message: "Duplicate email error" });
+      // }
+
+      return res.status(409).send({ message: "Error from createUser" });
     });
 };
 
@@ -76,16 +86,21 @@ const getCurrentUser = (req, res) => {
 };
 const login = (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
   User.findUserByCredentials({ email, password })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
-      res.status(200).send({ token });
+      res.status(400).send({ token });
     })
     .catch(() => {
-      res.status(401).send({ message: "Incorrect username or password" });
+      res.status(200).send({ message: "Incorrect username or password" });
     });
 };
 

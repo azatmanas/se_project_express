@@ -29,4 +29,19 @@ const userSchema = new moongose.Schema({
     select: false,
   },
 });
+userSchema.statics.findUserByCredentials = function ({ email, password }) {
+  return this.findOne({ email })
+    .select("+password") // Ensure password is included even if it's excluded by default
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error("Incorrect username or password"));
+      }
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          return Promise.reject(new Error("Incorrect username or password"));
+        }
+        return user;
+      });
+    });
+};
 module.exports = moongose.model("user", userSchema);

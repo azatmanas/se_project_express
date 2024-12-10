@@ -4,11 +4,19 @@ const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
+const updateUsers = (req, res) => {
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
     .then((users) => res.status(200).send(users))
     .catch((err) => {
-      console.error(err);
+      if (err.name === "Validation Error") {
+        return res.status(NOT_FOUND).send({ message: "Invalid data provided" });
+      }
       return res
         .status(DEFAULT)
         .send({ message: "Error message from userGetUser" });
@@ -17,12 +25,14 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new Error({ message: "Email already in use" });
-    }
-    return bcrypt.hash(password, 10);
-  });
+  User.findOne({ email })
+    .select("+password")
+    .then((user) => {
+      if (user) {
+        throw new Error({ message: "Email already in use" });
+      }
+      return bcrypt.hash(password, 10);
+    });
 
   User.create({ name, avatar, email, password })
     .then((user) => {
@@ -41,8 +51,8 @@ const createUser = (req, res) => {
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const { userId } = req.user;
   User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send(user))
@@ -72,4 +82,4 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUser, login };
+module.exports = { updateUsers, createUser, getCurrentUser, login };

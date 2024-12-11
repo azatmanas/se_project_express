@@ -27,13 +27,19 @@ const getItems = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+  ClothingItem.findById(itemId).then((item) => {
+    const ownerId = item.owner.toString();
+    if (ownerId !== req.user._id) {
+      //throw forbidden error
+    }
+  });
   ClothingItem.findByIdAndDelete(itemId)
     .orFail(() => {
       const error = new Error("User ID not found");
       error.name = "DocumentNotFoundError";
       throw error;
     })
-    .then(() => res.status(403).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+    .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });

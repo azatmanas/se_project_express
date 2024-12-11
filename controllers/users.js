@@ -5,10 +5,10 @@ const { JWT_SECRET } = require("../utils/config");
 const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
 
 const updateUsers = (req, res) => {
-  const userId = req.user._id;
+  const _id = req.user._id;
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
-    userId,
+    _id,
     { name, avatar },
     { new: true, runValidators: true }
   )

@@ -31,19 +31,20 @@ const createUser = (req, res) => {
     return res.status(BAD_REQUEST).send({ message: "Missing required fields" });
   }
 
-  User.findOne({ email })
+  return User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (user) {
-        if (err.code === 11000) {
-          return res.status(409).send({ message: "Duplicate email error" });
-        }
-        // throw new Error({ message: "Email already in use" });
+        const error = new Error();
+        error.code = 110000;
+        throw error;
       }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hashedPassword) => {
-      return User.create({ name, avatar, email, password: hashedPassword });
+
+      return bcrypt
+        .hash(password, 10)
+        .then((hashedPassword) =>
+          User.create({ name, avatar, email, password: hashedPassword })
+        );
     })
     .then((user) => {
       res.status(201).send({
@@ -59,11 +60,10 @@ const createUser = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Error from createUser" });
       }
-      // if (err.code === 11000 ) {
-      //   return res.status(400).send({ message: "Duplicate email error" });
-      // }
-
-      return res.status(409).send({ message: "Error from createUser" });
+      if (err.code === 110000) {
+        return res.status(409).send({ message: "Email already in use" });
+      }
+      return res.status(DEFAULT).send({ message: "Error from createUser" });
     });
 };
 
@@ -91,16 +91,21 @@ const login = (req, res) => {
       .status(BAD_REQUEST)
       .send({ message: "Email and password are required" });
   }
-  User.findUserByCredentials({ email, password })
+  return User.findUserByCredentials({ email, password })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-
-      res.status(400).send({ token });
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).send({ token });
     })
-    .catch(() => {
-      res.status(200).send({ message: "Incorrect username or password" });
+    .catch((err) => {
+      if (err.name === "Incorrect username or password") {
+        return res
+          .status(401)
+          .send({ message: "Incorrect username or password" });
+      }
+      return res.status(BAD_REQUEST).send({ message: "Internal server error" });
     });
 };
 

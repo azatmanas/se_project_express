@@ -4,11 +4,12 @@ const clothingItemRouter = require("./clothingItems");
 const { NOT_FOUND } = require("../utils/errors");
 const { login, createUser } = require("../controllers/users");
 
-mainRouter.use("/users", usersRouter);
-mainRouter.use("/items", clothingItemRouter);
 mainRouter.post("/signin", login);
 mainRouter.post("/signup", createUser);
+mainRouter.use("/users", usersRouter);
+mainRouter.use("/items", clothingItemRouter);
 mainRouter.use((req, res) => {
+  console.error(`Requested URL: ${req.url}`);
   res.status(NOT_FOUND).send({ message: "Requested resource not found" });
 });
 

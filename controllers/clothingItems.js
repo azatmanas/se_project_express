@@ -33,7 +33,7 @@ const deleteItem = (req, res) => {
       error.name = "DocumentNotFoundError";
       throw error;
     })
-    .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+    .then(() => res.status(403).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });

@@ -25,24 +25,57 @@ const getItems = (req, res) => {
     });
 };
 
+// const deleteItem = (req, res) => {
+//   const { itemId } = req.params;
+//   ClothingItem.findById(itemId).then((item) => {
+//     const ownerId = item.owner.toString();
+//     if (ownerId !== req.user._id) {
+//       const error = new Error("You are not authorized to delete this item");
+//       error.name = "ForbiddenError";
+//       throw error;
+//     }
+//   });
+//   ClothingItem.findByIdAndDelete(itemId)
+//     .orFail(() => {
+//       const error = new Error("User ID not found");
+//       error.name = "DocumentNotFoundError";
+//       throw error;
+//     })
+//     .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+//     .catch((err) => {
+//       if (err.name === "DocumentNotFoundError") {
+//         return res.status(NOT_FOUND).send({ message: "Item not found" });
+//       }
+
+//       if (err.name === "CastError") {
+//         return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
+//       }
+//       return res.status(DEFAULT).send({ message: "Server error occurred" });
+//     });
+// };
+
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findById(itemId).then((item) => {
-    const ownerId = item.owner.toString();
-    if (ownerId !== req.user._id) {
-      //throw forbidden error
-    }
-  });
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.name = "DocumentNotFoundError";
-      throw error;
+      throw new Error("Item not found");
     })
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        throw new Error("Forbidden");
+      }
+      return ClothingItem.findByIdAndDelete(itemId);
+    })
+
     .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (err.message === "Forbidden") {
+        return res
+          .status(403)
+          .send({ message: "You are not authorized to delete this item" });
       }
 
       if (err.name === "CastError") {
@@ -51,6 +84,7 @@ const deleteItem = (req, res) => {
       return res.status(DEFAULT).send({ message: "Server error occurred" });
     });
 };
+
 const likeItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;

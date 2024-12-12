@@ -5,10 +5,10 @@ const { JWT_SECRET } = require("../utils/config");
 const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
 
 const updateUsers = (req, res) => {
-  const _id = req.user._id;
+  const userId = req.user._id;
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
-    _id,
+    userId,
     { name, avatar },
     { new: true, runValidators: true }
   )
@@ -30,7 +30,6 @@ const createUser = (req, res) => {
   if (!email || !name || !password) {
     return res.status(BAD_REQUEST).send({ message: "Missing required fields" });
   }
-
   return User.findOne({ email })
     .select("+password")
     .then((user) => {
@@ -68,13 +67,11 @@ const createUser = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  console.log(req.user);
   const { _id } = req.user;
   User.findById(_id)
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
@@ -107,7 +104,7 @@ const login = (req, res) => {
           .status(401)
           .send({ message: "Incorrect username or password" });
       }
-      res.status(BAD_REQUEST).send({ message: "Internal server error" });
+      return res.status(BAD_REQUEST).send({ message: "Internal server error" });
     });
 };
 

@@ -2,7 +2,15 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
-const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  DEFAULT,
+  OK,
+  CREATED,
+  CONFLICT,
+  UNAUTHORIZED,
+} = require("../utils/errors");
 
 const updateUsers = (req, res) => {
   const userId = req.user._id;
@@ -12,7 +20,7 @@ const updateUsers = (req, res) => {
     { name, avatar },
     { new: true, runValidators: true }
   )
-    .then((users) => res.status(200).json(users))
+    .then((users) => res.status(OK).json(users))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(NOT_FOUND).json({ message: "Invalid data provided" });
@@ -46,7 +54,7 @@ const createUser = (req, res) => {
         );
     })
     .then((user) => {
-      res.status(201).send({
+      res.status(CREATED).send({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -60,7 +68,7 @@ const createUser = (req, res) => {
           .send({ message: "Error from createUser" });
       }
       if (err.code === 110000) {
-        return res.status(409).send({ message: "Email already in use" });
+        return res.status(CONFLICT).send({ message: "Email already in use" });
       }
       return res.status(DEFAULT).send({ message: "Error from createUser" });
     });
@@ -70,7 +78,7 @@ const getCurrentUser = (req, res) => {
   const { _id } = req.user;
   User.findById(_id)
     .orFail()
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(OK).send(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
@@ -96,12 +104,12 @@ const login = (req, res) => {
         expiresIn: "7d",
       });
       res.setHeader("Authorization", `Bearer ${token}`);
-      return res.status(200).send({ token });
+      return res.status(OK).send({ token });
     })
     .catch((err) => {
       if (err.name === "Incorrect username or password") {
         return res
-          .status(401)
+          .status(UNAUTHORIZED)
           .send({ message: "Incorrect username or password" });
       }
       return res.status(BAD_REQUEST).send({ message: "Internal server error" });

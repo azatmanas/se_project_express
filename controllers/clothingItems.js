@@ -1,12 +1,19 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  DEFAULT,
+  CREATED,
+  OK,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.status(201).send({ data: item }))
+    .then((item) => res.status(CREATED).send({ data: item }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
@@ -19,7 +26,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(OK).send(items))
     .catch(() => {
       res.status(DEFAULT).send({ message: "Error from getItems" });
     });
@@ -37,14 +44,14 @@ const deleteItem = (req, res) => {
       return ClothingItem.findByIdAndDelete(itemId);
     })
 
-    .then(() => res.status(200).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+    .then(() => res.status(OK).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
       if (err.message === "Forbidden") {
         return res
-          .status(403)
+          .status(FORBIDDEN)
           .send({ message: "You are not authorized to delete this item" });
       }
 
@@ -65,7 +72,7 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(OK).send({ data: item }))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         return res.status(NOT_FOUND).send({ message: "Invalid ID format" });
@@ -86,7 +93,7 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(OK).send({ data: item }))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });

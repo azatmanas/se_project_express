@@ -23,7 +23,9 @@ const updateUsers = (req, res) => {
     .then((users) => res.status(OK).json(users))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(NOT_FOUND).json({ message: "Invalid data provided" });
+        return res
+          .status(BAD_REQUEST)
+          .json({ message: "Invalid data provided" });
       }
 
       return res
@@ -103,16 +105,15 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.setHeader("Authorization", `Bearer ${token}`);
       return res.status(OK).send({ token });
     })
     .catch((err) => {
-      if (err.name === "Incorrect username or password") {
+      if (err.message === "Incorrect username or password") {
         return res
           .status(UNAUTHORIZED)
           .send({ message: "Incorrect username or password" });
       }
-      return res.status(BAD_REQUEST).send({ message: "Internal server error" });
+      return res.status(DEFAULT).send({ message: "Internal server error" });
     });
 };
 

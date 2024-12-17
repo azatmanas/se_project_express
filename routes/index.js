@@ -9,7 +9,6 @@ mainRouter.post("/signup", createUser);
 mainRouter.use("/users", usersRouter);
 mainRouter.use("/items", clothingItemRouter);
 mainRouter.use((req, res) => {
-  // console.error(`Requested URL: ${req.url}`);
   res.status(NOT_FOUND).send({ message: "Requested resource not found" });
 });
 

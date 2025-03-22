@@ -11,6 +11,8 @@ const validations = () => {
   });
 };
 
+module.exports = validations;
+
 router.post(
   "/posts",
   celebrate({

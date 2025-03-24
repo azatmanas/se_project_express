@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const mainRouter = require("./routes/index");
 const validator = require("validator");
+const { errors } = require("celebrate");
 
 const { PORT = 3001 } = process.env;
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/", mainRouter);
 app.use("/", validator);
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`Server running is ${PORT}`);

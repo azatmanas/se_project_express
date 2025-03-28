@@ -24,7 +24,5 @@ module.exports.validateCardBody = celebrate({
 });
 
 module.exports.validateId = celebrate({
-  params: Joi.object().keys({
-    // ...
-  }),
+  params: Joi.object().keys({}),
 });

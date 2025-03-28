@@ -4,7 +4,7 @@ const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const mainRouter = require("./routes/index");
-const validator = require("validator");
+
 const { errors } = require("celebrate");
 const {
   requestLogger,
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(errorLogger);
 app.use(messageFormat);
 app.use("/", mainRouter);
-app.use("/", validator);
+
 app.use(errors());
 
 app.listen(PORT, () => {

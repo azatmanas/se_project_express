@@ -36,4 +36,5 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({
     message: statusCode === 500 ? "An error occurred on the server" : message,
   });
+  next(new Error("Authorization error"));
 });

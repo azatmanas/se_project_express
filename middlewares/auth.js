@@ -13,14 +13,12 @@ const authMiddleware = (req, res, next) => {
   const token = authorization.replace("Bearer ", "");
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
-    return next();
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(UNAUTHORIZED)
-      .send({ message: "Invalid or expired token" });
+    payload = jwt.verify(token, "some-secret-key");
+  } catch (e) {
+    const err = new Error("Authorization required");
+    err.statusCode = 401;
+
+    next(err);
   }
 };
 

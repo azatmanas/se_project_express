@@ -26,9 +26,6 @@ app.use("/", mainRouter);
 
 app.use(errors());
 
-app.listen(PORT, () => {
-  console.log(`Server running is ${PORT}`);
-});
 app.use((err, req, res, next) => {
   console.error(err.stack);
 
@@ -37,4 +34,8 @@ app.use((err, req, res, next) => {
     message: statusCode === 500 ? "An error occurred on the server" : message,
   });
   next(new Error("Authorization error"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running is ${PORT}`);
 });

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
+const { UnAuthorized } = require("../utils/unAuthorized");
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -9,7 +10,6 @@ const {
   OK,
   CREATED,
   CONFLICT,
-  UNAUTHORIZED,
 } = require("../utils/errors");
 
 const updateUsers = (req, res) => {
@@ -110,7 +110,7 @@ const login = (req, res) => {
     .catch((err) => {
       if (err.message === "Incorrect username or password") {
         return res
-          .status(UNAUTHORIZED)
+          .status(UnAuthorized)
           .send({ message: "Incorrect username or password" });
       }
       return res.status(DEFAULT).send({ message: "Internal server error" });

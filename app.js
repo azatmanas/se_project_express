@@ -17,7 +17,7 @@ app.use(requestLogger);
 app.use(cors());
 app.use(express.json());
 app.use(errorLogger);
-// app.use(messageFormat);
+app.use(messageFormat);
 app.use("/", mainRouter);
 
 app.use(errors());

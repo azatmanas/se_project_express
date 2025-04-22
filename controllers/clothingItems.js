@@ -1,34 +1,35 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  DEFAULT,
-  CREATED,
-  OK,
-  FORBIDDEN,
-} = require("../utils/errors");
+
+const BadRequestError = require("../utils/badRequest");
+const CreatedError = require("../utils/createdError");
+const NotFoundError = require("../utils/notFoundError");
+const DeFaultError = require("../utils/default");
+const Ok = require("../utils/ok");
+const ForBiddenError = require("../utils/forbidden");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.status(CREATED).send(item))
+    .then((item) => res.status(CreatedError).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
-          .status(BAD_REQUEST)
+          .status(BadRequestError)
           .send({ message: "Error from create Val" });
       }
-      return res.status(DEFAULT).send({ message: "Error from createItem" });
+      return res
+        .status(DeFaultError)
+        .send({ message: "Error from createItem" });
     });
 };
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(OK).send(items))
+    .then((items) => res.status(Ok).send(items))
     .catch(() => {
-      res.status(DEFAULT).send({ message: "Error from getItems" });
+      res.status(DeFaultError).send({ message: "Error from getItems" });
     });
 };
 
@@ -44,21 +45,25 @@ const deleteItem = (req, res) => {
       return ClothingItem.findByIdAndDelete(itemId);
     })
 
-    .then(() => res.status(OK).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
+    .then(() => res.status(Ok).send({ message: "Item deleted" })) // keep inside then block the response in case everything is successful / correct
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
+        return res.status(NotFoundError).send({ message: "Item not found" });
       }
       if (err.message === "Forbidden") {
         return res
-          .status(FORBIDDEN)
+          .status(ForBiddenError)
           .send({ message: "You are not authorized to delete this item" });
       }
 
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
+        return res
+          .status(BadRequestError)
+          .send({ message: "Invalid ID format" });
       }
-      return res.status(DEFAULT).send({ message: "Server error occurred" });
+      return res
+        .status(DeFaultError)
+        .send({ message: "Server error occurred" });
     });
 };
 
@@ -72,15 +77,17 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then((item) => res.status(OK).send({ data: item }))
+    .then((item) => res.status(Ok).send({ data: item }))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        return res.status(NOT_FOUND).send({ message: "Invalid ID format" });
+        return res.status(NotFoundError).send({ message: "Invalid ID format" });
       }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
+        return res
+          .status(BadRequestError)
+          .send({ message: "Invalid ID format" });
       }
-      return res.status(DEFAULT).send({ message: "Error from LikeItem" });
+      return res.status(DeFaultError).send({ message: "Error from LikeItem" });
     });
 };
 
@@ -93,17 +100,19 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then((item) => res.status(OK).send({ data: item }))
+    .then((item) => res.status(Ok).send({ data: item }))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
+        return res.status(NotFoundError).send({ message: "Item not found" });
       }
       if (err.name === "CastError") {
         return res
-          .status(BAD_REQUEST)
+          .status(BadRequestError)
           .send({ message: "Invalid item ID format" });
       }
-      return res.status(DEFAULT).send({ message: "Server error occurred" });
+      return res
+        .status(DeFaultError)
+        .send({ message: "Server error occurred" });
     });
 };
 

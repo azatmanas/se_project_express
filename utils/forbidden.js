@@ -1,8 +1,8 @@
-// class ForBiddenError extends Error {
-//   constructor(message) {
-//     super(message);
-//     this.statusCode = 403;
-//   }
-// }
+class ForBiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
 
-// module.exports = ForBiddenError;
+module.exports = ForBiddenError;

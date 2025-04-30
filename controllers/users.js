@@ -3,12 +3,12 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 const { UnAuthorized } = require("../utils/unAuthorized");
-
-const { CREATED, CONFLICT } = require("../utils/errors");
 const BadRequestError = require("../utils/badRequest");
 const NotFoundError = require("../utils/notFoundError");
 const DeFaultError = require("../utils/default");
 const Ok = require("../utils/ok");
+const CreatedError = require("../utils/created");
+const ConflictError = require("../utils/conflict");
 
 const updateUsers = (req, res) => {
   const userId = req.user._id;
@@ -56,7 +56,7 @@ const createUser = (req, res) => {
         );
     })
     .then((user) => {
-      res.status(CREATED).send({
+      res.status(CreatedError).send({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -70,7 +70,9 @@ const createUser = (req, res) => {
           .send({ message: "Error from createUser" });
       }
       if (err.code === 110000) {
-        return res.status(CONFLICT).send({ message: "Email already in use" });
+        return res
+          .status(ConflictError)
+          .send({ message: "Email already in use" });
       }
       return res
         .status(DeFaultError)

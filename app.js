@@ -8,7 +8,6 @@ const mainRouter = require("./routes/index");
 
 const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const DeFaultError = require("./utils/default");
 const errorHandler = require("./middlewares/errorHandler");
 
 const { PORT = 3001 } = process.env;

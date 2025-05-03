@@ -10,14 +10,14 @@ const authMiddleware = (req, next) => {
 
   const token = authorization.replace("Bearer ", "");
 
-  try {
-    payload = jwt.verify(token, "some-secret-key");
-  } catch (e) {
-    const err = new Error("Authorization required");
-    err.statusCode = 401;
+//   try {
+//     payload = jwt.verify(token, "some-secret-key");
+//   } catch (e) {
+//     const err = new Error("Authorization required");
+//     err.statusCode = 401;
 
-    next(new UnAuthorized("Authorization required"));
-  }
-};
+//     next(new UnAuthorized("Authorization required"));
+//   }
+// };
 
 module.exports = authMiddleware;

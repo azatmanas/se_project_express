@@ -6,7 +6,6 @@ const { UnAuthorized } = require("../utils/unAuthorized");
 const BadRequestError = require("../utils/badRequest");
 const NotFoundError = require("../utils/notFoundError");
 const DeFaultError = require("../utils/default");
-const Ok = require("../utils/ok");
 const CreatedError = require("../utils/created");
 const ConflictError = require("../utils/conflict");
 
@@ -18,17 +17,13 @@ const updateUsers = (req, res) => {
     { name, avatar },
     { new: true, runValidators: true }
   )
-    .then((users) => res.status(Ok).json(users))
+    .then((users) => next(new OK()).json(users))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(BadRequestError)
-          .json({ message: "Invalid data provided" });
+        next(new BadRequestError("Invalid data provided"));
       }
 
-      return res
-        .status(DeFaultError)
-        .json({ message: "Error message from userGetUser" });
+      next(new DeFaultError("Error message from userGetUser"));
     });
 };
 
@@ -36,9 +31,7 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !name || !password) {
-    return res
-      .status(BadRequestError)
-      .send({ message: "Missing required fields" });
+    next(new BadRequestError("Missing required fields"));
   }
   return User.findOne({ email })
     .select("+password")
@@ -56,7 +49,7 @@ const createUser = (req, res) => {
         );
     })
     .then((user) => {
-      res.status(CreatedError).send({
+      next(new CreatedError()).send({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -65,18 +58,13 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(BadRequestError)
-          .send({ message: "Error from createUser" });
+        next(new BadRequestError("Error from createUser"));
       }
       if (err.code === 110000) {
-        return res
-          .status(ConflictError)
-          .send({ message: "Email already in use" });
+        next(new ConflictError("Email already in use"));
       }
-      return res
-        .status(DeFaultError)
-        .send({ message: "Error from createUser" });
+
+      next(new DeFaultError("Error from createUser"));
     });
 };
 
@@ -84,42 +72,36 @@ const getCurrentUser = (req, res) => {
   const { _id } = req.user;
   User.findById(_id)
     .orFail()
-    .then((user) => res.status(Ok).send(user))
+    .then((user) => next(new OK()).send(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NotFoundError).send({ message: err.message });
+        next(new NotFoundError("message: err.message "));
       }
       if (err.name === "CastError") {
-        return res.status(BadRequestError).send({ message: err.message });
+        next(new BadRequestError("Invalid cast error"));
       }
-      return res
-        .status(DeFaultError)
-        .send({ message: "An error has occurred on the server" });
+
+      next(new DeFaultError("An error has occurred on the server"));
     });
 };
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res
-      .status(BadRequestError)
-      .send({ message: "Email and password are required" });
+    next(new BadRequestError("Email and password are required"));
   }
   return User.findUserByCredentials({ email, password })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      return res.status(Ok).send({ token });
+      next(new OK()).send({ token });
     })
     .catch((err) => {
       if (err.message === "Incorrect username or password") {
-        return res
-          .status(UnAuthorized)
-          .send({ message: "Incorrect username or password" });
+        next(new UnAuthorized("Incorrect username or password"));
       }
-      return res
-        .status(DeFaultError)
-        .send({ message: "Internal server error" });
+
+      next(new DeFaultError("Internal server error"));
     });
 };
 

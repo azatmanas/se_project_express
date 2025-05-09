@@ -9,7 +9,7 @@ const DeFaultError = require("../utils/default");
 const CreatedError = require("../utils/created");
 const ConflictError = require("../utils/conflict");
 
-const updateUsers = (req, res) => {
+const updateUsers = (req) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
@@ -84,7 +84,7 @@ const getCurrentUser = (req, res) => {
       next(new DeFaultError("An error has occurred on the server"));
     });
 };
-const login = (req, res) => {
+const login = (req) => {
   const { email, password } = req.body;
   if (!email || !password) {
     next(new BadRequestError("Email and password are required"));

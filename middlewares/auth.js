@@ -11,7 +11,7 @@ const authMiddleware = (req, next) => {
   const token = authorization.replace("Bearer ", "");
 
   try {
-    payload = jwt.verify(token, "some-secret-key");
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (e) {
     const err = new Error("Authorization required");
     err.statusCode = 401;

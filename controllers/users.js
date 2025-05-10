@@ -25,6 +25,7 @@ const updateUsers = (req) => {
 
       next(new DeFaultError("Error message from userGetUser"));
     });
+  return next(err);
 };
 
 const createUser = (req, res) => {

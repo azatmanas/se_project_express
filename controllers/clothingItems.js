@@ -23,8 +23,9 @@ const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).json(items))
     .catch(() => {
-      next(new DefaultError("Error occurred while retrieving items"));
+      return next(new DefaultError("Error occurred while retrieving items"));
     });
+  return next(err);
 };
 
 const deleteItem = (req, res, next) => {
@@ -43,7 +44,7 @@ const deleteItem = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -62,7 +63,7 @@ const likeItem = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -81,7 +82,7 @@ const dislikeItem = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      next(err);
+      return next(err);
     });
 };
 

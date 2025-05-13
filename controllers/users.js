@@ -6,7 +6,7 @@ const { UnAuthorized } = require("../utils/unAuthorized");
 const BadRequestError = require("../utils/badRequest");
 const NotFoundError = require("../utils/notFoundError");
 const DeFaultError = require("../utils/default");
-const CreatedError = require("../utils/created");
+const CreatedError = require("../utils/createdError");
 const ConflictError = require("../utils/conflict");
 
 const updateUsers = (req) => {

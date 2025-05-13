@@ -25,7 +25,6 @@ const getItems = (req, res, next) => {
     .catch(() => {
       return next(new DefaultError("Error occurred while retrieving items"));
     });
-  return next(err);
 };
 
 const deleteItem = (req, res, next) => {

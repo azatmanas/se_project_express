@@ -25,10 +25,9 @@ const updateUsers = (req) => {
 
       next(new DeFaultError("Error message from userGetUser"));
     });
-  return next(err);
 };
 
-const createUser = (req, res) => {
+const createUser = (req) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !name || !password) {

@@ -12,10 +12,7 @@ const authMiddleware = (req, next) => {
 
   try {
     payload = jwt.verify(token, JWT_SECRET);
-  } catch (e) {
-    const err = new Error("Authorization required");
-    err.statusCode = 401;
-
+  } catch {
     next(new UnAuthorized("Authorization required"));
   }
 };

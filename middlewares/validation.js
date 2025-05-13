@@ -26,7 +26,7 @@ module.exports.validateCardBody = celebrate({
 
 module.exports.validateId = celebrate({
   params: Joi.object().keys({
-    ItemId: Joi.string().length(24).hex().required().messages({
+    itemId: Joi.string().length(24).hex().required().messages({
       "string.length": "The 'id' must be a 24-character hexadecimal string",
       "string.hex": "The 'id' must contain only hexadecimal characters",
       "any.required": "The 'id' field is required",

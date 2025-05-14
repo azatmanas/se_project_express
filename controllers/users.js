@@ -2,11 +2,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
-const { UnAuthorized } = require("../utils/unAuthorized");
+const UnAuthorized = require("../utils/unAuthorized");
 const BadRequestError = require("../utils/badRequest");
 const NotFoundError = require("../utils/notFoundError");
 const DeFaultError = require("../utils/default");
-const CreatedError = require("../utils/createdError");
 const ConflictError = require("../utils/conflict");
 
 const updateUsers = (req, res, next) => {
@@ -52,7 +51,7 @@ const createUser = (req, res, next) => {
         email: user.email,
         avatar: user.avatar,
       };
-      return next(new CreatedError(userData));
+      return res.status(201).send(userData);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {

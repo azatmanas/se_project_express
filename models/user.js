@@ -1,8 +1,8 @@
-const moongose = require("mongoose");
+const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
-const userSchema = new moongose.Schema({
+const userSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 2, maxlength: 30 },
   email: {
     type: String,
@@ -30,7 +30,10 @@ const userSchema = new moongose.Schema({
     select: false,
   },
 });
-userSchema.statics.findUserByCredentials = function ({ email, password }) {
+userSchema.statics.findUserByCredentials = function findUserByCredentials({
+  email,
+  password,
+}) {
   return this.findOne({ email })
     .select("+password")
     .then((user) => {
@@ -45,4 +48,4 @@ userSchema.statics.findUserByCredentials = function ({ email, password }) {
       });
     });
 };
-module.exports = moongose.model("user", userSchema);
+module.exports = mongoose.model("user", userSchema);

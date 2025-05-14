@@ -9,99 +9,95 @@ const DeFaultError = require("../utils/default");
 const CreatedError = require("../utils/createdError");
 const ConflictError = require("../utils/conflict");
 
-const updateUsers = (req) => {
+const updateUsers = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
-  User.findByIdAndUpdate(
+
+  return User.findByIdAndUpdate(
     userId,
     { name, avatar },
     { new: true, runValidators: true }
   )
-    .then((users) => next(new OK()).json(users))
+    .then((users) => res.json(users))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError("Invalid data provided"));
+        return next(new BadRequestError("Invalid data provided"));
       }
-
-      next(new DeFaultError("Error message from userGetUser"));
+      return next(new DeFaultError("Error message from userGetUser"));
     });
 };
 
-const createUser = (req) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !name || !password) {
-    next(new BadRequestError("Missing required fields"));
+    return next(new BadRequestError("Missing required fields"));
   }
+
   return User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (user) {
-        const error = new Error();
-        error.code = 110000;
-        throw error;
+        throw new ConflictError("Email already in use");
       }
-
-      return bcrypt
-        .hash(password, 10)
-        .then((hashedPassword) =>
-          User.create({ name, avatar, email, password: hashedPassword })
-        );
+      return bcrypt.hash(password, 10);
     })
+    .then((hashedPassword) =>
+      User.create({ name, avatar, email, password: hashedPassword })
+    )
     .then((user) => {
-      next(new CreatedError()).send({
+      const userData = {
         _id: user._id,
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-      });
+      };
+      return next(new CreatedError(userData));
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError("Error from createUser"));
+        return next(new BadRequestError("Error from createUser"));
       }
-      if (err.code === 110000) {
-        next(new ConflictError("Email already in use"));
-      }
-
-      next(new DeFaultError("Error from createUser"));
+      return next(err);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
-  User.findById(_id)
+
+  return User.findById(_id)
     .orFail()
-    .then((user) => next(new OK()).send(user))
+    .then((user) => res.json(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError("message: err.message "));
+        return next(new NotFoundError("User not found"));
       }
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid cast error"));
+        return next(new BadRequestError("Invalid user ID"));
       }
-
-      next(new DeFaultError("An error has occurred on the server"));
+      return next(new DeFaultError("An error has occurred on the server"));
     });
 };
-const login = (req) => {
+
+const login = (req, res, next) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
-    next(new BadRequestError("Email and password are required"));
+    return next(new BadRequestError("Email and password are required"));
   }
+
   return User.findUserByCredentials({ email, password })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      next(new OK()).send({ token });
+      res.send({ token });
     })
     .catch((err) => {
       if (err.message === "Incorrect username or password") {
-        next(new UnAuthorized("Incorrect username or password"));
+        return next(new UnAuthorized("Incorrect username or password"));
       }
-
-      next(new DeFaultError("Internal server error"));
+      return next(new DeFaultError("Internal server error"));
     });
 };
 

@@ -4,9 +4,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const mainRouter = require("./routes/index");
-
 const { errors } = require("celebrate");
+
+const mainRouter = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -24,6 +24,4 @@ app.use(errors());
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server running is ${PORT}`);
-});
+app.listen(PORT, () => {});

@@ -15,16 +15,16 @@ const createItem = (req, res, next) => {
       if (err.name === "ValidationError") {
         return next(new BadRequestError("Invalid data provided"));
       }
-      next(new DefaultError("Error occurred while creating the item"));
+      return next(new DefaultError("Error occurred while creating the item"));
     });
 };
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).json(items))
-    .catch(() => {
-      return next(new DefaultError("Error occurred while retrieving items"));
-    });
+    .catch(() =>
+      next(new DefaultError("Error occurred while retrieving items"))
+    );
 };
 
 const deleteItem = (req, res, next) => {
